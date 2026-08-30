@@ -53,13 +53,10 @@ rng(randseed)
             y_ini = [y_ini(2:end); y_seq(t-1)];
         end
         
-        % Definizione traiettoria di riferimento
         r = desired_trajectory(t:t+N-1);
         
-        % Risoluzione problema DeePC
         [~, y_pred, u_opt, is_infeasible] = solve_DeePC(U_p, Y_p, U_f, Y_f, u_ini, y_ini, r, Q, R, flag_SPC, P_SPC);
         
-        % Controllo infeasibilità: se flag == 1, esci dal ciclo
         if is_infeasible
             warning('DeePC infeasibile at t = %d. Break.\n', t);
             u_seq = u_seq(1:t-1);
@@ -68,11 +65,9 @@ rng(randseed)
             break;
         end
         
-        % Applica il primo ingresso di controllo
         u_seq(t) = u_opt(1); 
         y_pred_seq(t,:) = y_pred';
         
-        % Aggiornamento dinamica di sistema
         [y_seq(t), x_next] = system_dynamics_global_no_noise(u_seq(t), x_seq(:,t), sys);
         x_seq(:,t+1) = x_next; 
     end
